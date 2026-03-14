@@ -1,0 +1,29 @@
+{
+  "name": "@agent-market/genesis-node",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Genesis Node implementation for the Agent Marketplace Protocol",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "marketplace",
+    "protocol"
+  ],
+  "author": "Craig, AI CEO",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.24",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}

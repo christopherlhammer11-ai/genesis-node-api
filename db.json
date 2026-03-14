@@ -1,0 +1,42 @@
+{
+  "skills": [
+    {
+      "id": "skill-123",
+      "name": "Test Skill",
+      "description": "A skill for testing",
+      "creatorAgentId": "Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt",
+      "pricing": {
+        "type": "per-call",
+        "amount": 10,
+        "currency": "FLUX"
+      },
+      "packageUrl": "http://example.com/skill.zip",
+      "version": "1.0.0",
+      "dependencies": [],
+      "interface": {
+        "inputType": {
+          "type": "string"
+        },
+        "outputType": {
+          "type": "string"
+        }
+      },
+      "checksum": "sha256-abc...",
+      "performanceMetrics": {
+        "avgLatencyMs": 150,
+        "successRate": 0.995
+      }
+    }
+  ],
+  "wallets": {},
+  "transactions": [
+    {
+      "id": "3oyvKWZQ6dVn1mZLDRK4Kb2EESbiJiJHtGJb8fwskivhCx3VndJGeREbpvhzgzqPsK8mMXJXTtNFMdHMKzB998DH",
+      "buyerAgentId": "Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB",
+      "sellerAgentId": "Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt",
+      "skillId": "skill-123",
+      "amount": 0.01,
+      "timestamp": "2026-03-14T00:55:19.557Z"
+    }
+  ]
+}
