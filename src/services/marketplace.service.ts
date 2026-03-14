@@ -88,7 +88,22 @@ const SEED_DB: Database = {
       checksum: 'sha256-pending',
       performanceMetrics: { avgLatencyMs: 0, successRate: 1.0 },
     },
-  ],
+    {
+      id: 'skill-recallmax',
+      name: 'RecallMax',
+      description: 'FREE — Ensure God-Tier Long-Context Memory. Injects extensive clean tokens, captures intent across conversations.',
+      version: '1.0.0',
+      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      pricing: { type: 'per-call', amount: 0, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { text: { type: 'string' } } },
+        outputType: { type: 'object', properties: { summary: { type: 'string' }, condensed: { type: 'string' } } },
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/recallmax',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 100, successRate: 1.0 },
+    }],
   wallets: {},
   transactions: [],
 };
