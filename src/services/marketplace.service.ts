@@ -21,6 +21,62 @@ interface Database {
 // In-memory cache of the database to avoid constant reading
 let database: Database | null = null;
 
+// Default seed data for when db.json is unavailable (e.g. Vercel serverless)
+const SEED_DB: Database = {
+  skills: [
+    {
+      id: 'skill-text-summarizer',
+      name: 'Text Summarizer',
+      description: 'AI-powered text summarization. Send any text, get a concise summary back.',
+      version: '1.0.0',
+      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      pricing: { type: 'per-call', amount: 5, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { text: { type: 'string' } } },
+        outputType: { type: 'object', properties: { summary: { type: 'string' } } },
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/genesis-node-api',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 150, successRate: 0.995 },
+    },
+    {
+      id: 'skill-code-review',
+      name: 'Code Reviewer',
+      description: 'Automated code review agent. Submit code, get quality analysis, bug detection, and improvement suggestions.',
+      version: '1.0.0',
+      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      pricing: { type: 'per-call', amount: 10, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { code: { type: 'string' }, language: { type: 'string' } } },
+        outputType: { type: 'object', properties: { issues: { type: 'array' }, score: { type: 'number' } } },
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/genesis-node-api',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 300, successRate: 0.99 },
+    },
+    {
+      id: 'skill-web-scraper',
+      name: 'Web Scraper',
+      description: 'Extract structured data from any public webpage. Returns clean JSON.',
+      version: '1.0.0',
+      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      pricing: { type: 'per-call', amount: 3, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { url: { type: 'string' }, selectors: { type: 'object' } } },
+        outputType: { type: 'object', properties: { data: { type: 'object' } } },
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/genesis-node-api',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 500, successRate: 0.98 },
+    },
+  ],
+  wallets: {},
+  transactions: [],
+};
+
 export async function readDb(): Promise<Database> {
   if (database) return database;
   try {
@@ -28,10 +84,14 @@ export async function readDb(): Promise<Database> {
     database = JSON.parse(data);
     return database as Database;
   } catch (error) {
-    const newDb: Database = { skills: [], wallets: {}, transactions: [] };
-    await fs.writeFile(DB_PATH, JSON.stringify(newDb, null, 2));
-    database = newDb;
-    return database;
+    // On serverless (Vercel), filesystem is read-only — use seed data
+    database = JSON.parse(JSON.stringify(SEED_DB));
+    try {
+      await fs.writeFile(DB_PATH, JSON.stringify(database, null, 2));
+    } catch {
+      // Silently continue with in-memory seed data
+    }
+    return database as Database;
   }
 }
 
