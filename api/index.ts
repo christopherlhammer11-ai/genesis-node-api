@@ -1,20 +1,19 @@
-// src/server.ts
+// api/index.ts — Vercel serverless entry point
+// Re-exports the Express app for Vercel's serverless adapter
 
 import express from 'express';
-import marketplaceRoutes from './routes/marketplace.routes';
+import marketplaceRoutes from '../src/routes/marketplace.routes';
 
 const app = express();
-const PORT = process.env.PORT || 6970;
 
 app.use(express.json());
 
-// Health check / info endpoint
+// Health check
 app.get('/', (_req, res) => {
   res.json({
     name: 'Genesis Node — Agent Marketplace Protocol',
     version: '1.0.0',
     status: 'online',
-    network: process.env.SOLANA_NETWORK || 'localnet',
     endpoints: {
       discover: 'POST /v1/discover',
       publish: 'POST /v1/publish',
@@ -25,12 +24,5 @@ app.get('/', (_req, res) => {
 });
 
 app.use('/v1', marketplaceRoutes);
-
-// Only start listening when run directly (not imported by Vercel)
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Genesis Node listening on port ${PORT}`);
-  });
-}
 
 export default app;

@@ -5,12 +5,12 @@ import { Connection, PublicKey, Keypair, sendAndConfirmTransaction, Transaction 
 import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
 import path from 'path';
 
-const DB_PATH = './db.json';
-const SOLANA_RPC_URL = 'http://127.0.0.1:8899';
+const DB_PATH = process.env.DB_PATH || './db.json';
+const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'http://127.0.0.1:8899';
 const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
-const FLUX_MINT_ADDRESS = '4CkR2jysfcsk3Mdn86KuuUkRSBBPwtN1fPaaffawLax9';
+const FLUX_MINT_ADDRESS = process.env.FLUX_MINT_ADDRESS || '4CkR2jysfcsk3Mdn86KuuUkRSBBPwtN1fPaaffawLax9';
 const FLUX_MINT_PUBLIC_KEY = new PublicKey(FLUX_MINT_ADDRESS);
-const FLUX_DECIMALS = 9;
+const FLUX_DECIMALS = parseInt(process.env.FLUX_DECIMALS || '9', 10);
 
 interface Database {
   skills: Skill[];
