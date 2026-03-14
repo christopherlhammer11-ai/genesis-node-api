@@ -103,6 +103,55 @@ const SEED_DB: Database = {
       packageUrl: 'https://github.com/christopherlhammer11-ai/recallmax',
       checksum: 'sha256-pending',
       performanceMetrics: { avgLatencyMs: 100, successRate: 1.0 },
+    
+    },
+    {
+      id: 'skill-real-time-verifier',
+      name: 'Real-time Verifier',
+      description: 'Verifies real-time data across sources with trust scores.',
+      version: '1.0.0',
+      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      pricing: { type: 'per-call', amount: 15, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { urls: { type: 'array', items: { type: 'string' } } } },
+        outputType: { type: 'object', properties: { results: { type: 'array', items: { type: 'object', properties: { url: { type: 'string' }, trustScore: { type: 'number' }, data: { type: 'object' } } } } } }
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/real-time-verifier',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 8000, successRate: 1.0 },
+    },
+    {
+      id: 'skill-surgical-code-editor',
+      name: 'Surgical Code Editor',
+      description: 'Analyzes and optimizes code with advanced insights.',
+      version: '1.0.0',
+      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      pricing: { type: 'per-call', amount: 20, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { code: { type: 'string' } } },
+        outputType: { type: 'object', properties: { analysis: { type: 'object', properties: { complexity: { type: 'string' }, issues: { type: 'array' }, suggestions: { type: 'array' } } } } }
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/surgical-code-editor',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 2000, successRate: 1.0 },
+    },
+    {
+      id: 'skill-prompt-condenser',
+      name: 'Prompt Condenser',
+      description: 'Condenses prompts into more efficient forms for faster processing.',
+      version: '1.0.0',
+      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      pricing: { type: 'per-call', amount: 8, currency: 'FLUX' },
+      dependencies: [],
+      interface: {
+        inputType: { type: 'object', properties: { prompts: { type: 'array', items: { type: 'string' } } } },
+        outputType: { type: 'object', properties: { condensed: { type: 'array', items: { type: 'object', properties: { original: { type: 'string' }, condensed: { type: 'string' } } } } } }
+      },
+      packageUrl: 'https://github.com/christopherlhammer11-ai/prompt-condenser',
+      checksum: 'sha256-pending',
+      performanceMetrics: { avgLatencyMs: 500, successRate: 1.0 },
     }],
   wallets: {},
   transactions: [],
