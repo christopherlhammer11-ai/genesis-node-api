@@ -6,11 +6,13 @@ import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/sp
 import path from 'path';
 
 const DB_PATH = process.env.DB_PATH || './db.json';
-const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'http://127.0.0.1:8899';
+const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
 const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
 const FLUX_MINT_ADDRESS = process.env.FLUX_MINT_ADDRESS || '4CkR2jysfcsk3Mdn86KuuUkRSBBPwtN1fPaaffawLax9';
 const FLUX_MINT_PUBLIC_KEY = new PublicKey(FLUX_MINT_ADDRESS);
 const FLUX_DECIMALS = parseInt(process.env.FLUX_DECIMALS || '9', 10);
+const PROTOCOL_FEE_RATE = 0.05; // 5% fee on every transaction
+const TREASURY_PUBLIC_KEY = new PublicKey(process.env.TREASURY_WALLET || '5JfVfdEAAuwop51RLx6rUbooiEd1vTSxyw2DhkjPbA8G');
 
 interface Database {
   skills: Skill[];
@@ -219,10 +221,21 @@ export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: 
     const skill = database.skills.find(s => s.id === skillId);
     if (!skill) throw new Error('Skill not found');
     if (skill.pricing.currency !== 'FLUX') throw new Error('Skill is not priced in FLUX');
+    if (skill.pricing.amount === 0) {
+        // Free skills — no payment needed
+        return {
+            message: 'Skill is free — no payment required',
+            packageUrl: skill.packageUrl,
+        };
+    }
 
     const sellerAgentId = skill.creatorAgentId;
     const priceInFlux = skill.pricing.amount;
     const priceInSmallestUnit = priceInFlux * (10 ** FLUX_DECIMALS);
+
+    // Calculate 5% protocol fee
+    const feeAmount = Math.floor(priceInSmallestUnit * PROTOCOL_FEE_RATE);
+    const sellerAmount = priceInSmallestUnit - feeAmount;
 
     const buyerKeypair = await getKeypair(buyerAgentId);
     const sellerPublicKey = new PublicKey(sellerAgentId);
@@ -230,15 +243,32 @@ export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: 
     // Get the Associated Token Accounts
     const buyerTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, buyerKeypair.publicKey);
     const sellerTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, sellerPublicKey);
+    const treasuryTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, TREASURY_PUBLIC_KEY);
 
-    const transaction = new Transaction().add(
+    // Build transaction: 95% to seller + 5% to treasury
+    const transaction = new Transaction();
+
+    // Transfer 95% to seller
+    transaction.add(
         createTransferInstruction(
             buyerTokenAccountAddress,
             sellerTokenAccountAddress,
             buyerKeypair.publicKey,
-            priceInSmallestUnit
+            sellerAmount
         )
     );
+
+    // Transfer 5% protocol fee to treasury
+    if (feeAmount > 0) {
+        transaction.add(
+            createTransferInstruction(
+                buyerTokenAccountAddress,
+                treasuryTokenAccountAddress,
+                buyerKeypair.publicKey,
+                feeAmount
+            )
+        );
+    }
 
     try {
         const signature = await sendAndConfirmTransaction(connection, transaction, [buyerKeypair], { commitment: 'confirmed' });
@@ -249,9 +279,11 @@ export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: 
             sellerAgentId,
             skillId,
             amount: priceInFlux,
+            protocolFee: priceInFlux * PROTOCOL_FEE_RATE,
+            sellerReceived: priceInFlux * (1 - PROTOCOL_FEE_RATE),
             timestamp: new Date().toISOString()
         };
-        
+
         if (database) {
             database.transactions.push(txnRecord);
             await writeDb();
@@ -261,6 +293,12 @@ export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: 
             message: 'Purchase successful',
             transactionId: signature,
             packageUrl: skill.packageUrl,
+            breakdown: {
+                total: priceInFlux,
+                sellerReceived: priceInFlux * (1 - PROTOCOL_FEE_RATE),
+                protocolFee: priceInFlux * PROTOCOL_FEE_RATE,
+                feeRate: `${PROTOCOL_FEE_RATE * 100}%`,
+            },
         };
     } catch (error) {
         console.error("Transaction failed:", error);
