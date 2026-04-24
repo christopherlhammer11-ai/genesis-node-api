@@ -6,8 +6,22 @@ import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/sp
 import path from 'path';
 
 const DB_PATH = process.env.DB_PATH || './db.json';
-const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+
+// Get Solana network configuration
+const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'devnet';
+
+// Get RPC URL based on network or use explicit SOLANA_RPC_URL
+const DEFAULT_RPC_URLS: Record<string, string> = {
+  mainnet: 'https://api.mainnet-beta.solana.com',
+  devnet: 'https://api.devnet.solana.com',
+  testnet: 'https://api.testnet.solana.com',
+  localhost: 'http://localhost:8899',
+};
+
+const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || DEFAULT_RPC_URLS[SOLANA_NETWORK] || 'https://api.devnet.solana.com';
 const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
+
+// Get FLUX mint address with fallback to known devnet address
 const FLUX_MINT_ADDRESS = process.env.FLUX_MINT_ADDRESS || '4CkR2jysfcsk3Mdn86KuuUkRSBBPwtN1fPaaffawLax9';
 const FLUX_MINT_PUBLIC_KEY = new PublicKey(FLUX_MINT_ADDRESS);
 const FLUX_DECIMALS = parseInt(process.env.FLUX_DECIMALS || '9', 10);
@@ -211,9 +225,14 @@ async function getKeypair(agentId: string): Promise<Keypair> {
     const agentName = AGENT_KEY_MAP[agentId];
     if (!agentName) throw new Error(`No keypair found for agent ${agentId}`);
     const keypairPath = path.join(process.env.HOME || '~', 'openclaw-craig', '.openclaw', 'solana', `${agentName}.json`);
-    const secretKeyString = await fs.readFile(keypairPath, { encoding: 'utf8' });
-    const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
-    return Keypair.fromSecretKey(secretKey);
+    try {
+        const secretKeyString = await fs.readFile(keypairPath, { encoding: 'utf8' });
+        const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
+        return Keypair.fromSecretKey(secretKey);
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to load keypair for agent ${agentId}: ${errorMessage}`);
+    }
 }
 
 export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: Database): Promise<any> {

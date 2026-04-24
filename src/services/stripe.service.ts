@@ -2,7 +2,10 @@
 import Stripe from 'stripe';
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const stripe = new Stripe(stripeSecretKey!);
+if (!stripeSecretKey) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+}
+const stripe = new Stripe(stripeSecretKey);
 
 export const createCheckoutSession = async (priceId: string, successUrl: string, cancelUrl: string) => {
   const session = await stripe.checkout.sessions.create({
