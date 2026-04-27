@@ -1,21 +1,33 @@
 # Genesis Node API
 
-Express.js backend for the agent-to-agent skill marketplace.
+**REST API for an agent skill marketplace.** Genesis Node API provides the backend shape for agents to discover, publish, and purchase reusable capabilities.
 
-<!-- badges -->
+Demo: **Related demo:** [Genesis Marketplace](https://christopherhammer.dev/assets/videos/narrated/project-demos/genesis-marketplace-narrated.mp4)
 
-## What It Does
+## Who Uses It
 
-Genesis Node API powers the decentralized skill trading ecosystem, enabling AI agents to discover, purchase, and publish automation skills. It integrates Solana FLUX token payments with a RESTful interface for seamless agent-to-agent commerce.
+- Agent platform builders
+- Marketplace experiments
+- Developers prototyping skill registries
+- Crypto/AI infrastructure projects exploring paid capability exchange
 
-## Features
+## Core Features
 
-- **Skill Marketplace**: 8 pre-loaded skills with automatic discovery
-- **RESTful Endpoints**: `/v1/discover`, `/v1/purchase`, `/v1/publish`
-- **Solana Integration**: FLUX token payments with 95/5 revenue split
-- **Agent Trading Flow**: One-click purchase and instant skill deployment
-- **Production Ready**: Error handling, rate limiting, secure key management
-- **WebSocket Support**: Real-time skill catalog updates
+- Skill discovery endpoint
+- Skill publish endpoint
+- Purchase/receipt flow concept
+- Seeded demo skills
+- Express API surface
+- Solana/FLUX marketplace concept
+- Companion backend for the Genesis Marketplace frontend
+
+## Example Flow
+
+```bash
+curl http://localhost:6970/v1/discover
+```
+
+An agent can discover available skills, inspect metadata, and request a purchase/install flow.
 
 ## Quick Start
 
@@ -24,45 +36,17 @@ npm install
 npm run dev
 ```
 
-Server runs on `http://localhost:6970`
+Server runs on [http://localhost:6970](http://localhost:6970).
 
-## Usage
+## Portfolio Context
 
-```typescript
-import axios from 'axios';
+Genesis Node API shows backend thinking around agent registries and capability exchange. It pairs with the Genesis Marketplace frontend and the smaller tool repos that could become marketplace skills.
 
-// Discover available skills
-const skills = await axios.get('http://localhost:6970/v1/discover', {
-  headers: { 'X-Agent-ID': 'agent-123' }
-});
+---
 
-// Purchase a skill with FLUX payment
-const receipt = await axios.post('http://localhost:6970/v1/purchase', {
-  skillId: 'text-summarizer-v1',
-  agentWallet: 'ABCDEFGHIJKLMNOPabcdefghijklmnop'
-});
+Built by **Christopher L. Hammer** - self-taught AI/product builder shipping local-first tools, demos, and real product surfaces.
 
-// Publish your own skill
-await axios.post('http://localhost:6970/v1/publish', {
-  name: 'My Skill',
-  version: '1.0.0',
-  price: 50 // FLUX tokens
-});
-```
+- Portfolio: [christopherhammer.dev](https://christopherhammer.dev)
+- Proof demos: [https://christopherhammer.dev#proof](https://christopherhammer.dev#proof)
+- GitHub: [christopherlhammer11-ai](https://github.com/christopherlhammer11-ai)
 
-## Tech Stack
-
-- Express.js (Node.js server framework)
-- @solana/web3.js (blockchain integration)
-- Stripe (payment processing)
-- SQLite (local skill cache)
-
-## Part of Genesis Marketplace
-
-The API backend that powers the Genesis Marketplace, connecting agents to the skill economy.
-
-## Author
-
-Christopher L. Hammer  
-GitHub: [christopherlhammer11-ai](https://github.com/christopherlhammer11-ai)  
-Sites: [hammercg.com](https://hammercg.com) | [hammerlockai.com](https://hammerlockai.com)
