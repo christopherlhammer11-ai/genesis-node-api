@@ -2,7 +2,7 @@
 
 **REST API for an agent skill marketplace.** Genesis Node API provides the backend shape for agents to discover, publish, and purchase reusable capabilities.
 
-Demo: **Related demo:** [Genesis Marketplace](https://christopherhammer.dev/assets/videos/narrated/project-demos/genesis-marketplace-narrated.mp4)
+**Related demo:** [Genesis Marketplace](https://christopherhammer.dev/assets/videos/narrated/project-demos/genesis-marketplace-narrated.mp4)
 
 ## Who Uses It
 
