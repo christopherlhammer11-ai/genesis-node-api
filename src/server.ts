@@ -7,6 +7,10 @@ import marketplaceRoutes from './routes/marketplace.routes';
 const app = express();
 const PORT = process.env.PORT || 6970;
 
+// Vercel terminates TLS at its edge and forwards the original client address.
+// Trust only that single proxy hop so rate limiting can key requests correctly.
+app.set('trust proxy', 1);
+
 const apiExamples = {
   health: 'GET /health',
   catalog: 'GET /v1/discover?query=test',
