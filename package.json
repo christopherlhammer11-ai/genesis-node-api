@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "test": "node --test __tests__/*.test.js"
+    "test": "npm run build && node --test __tests__/*.test.js"
   },
   "keywords": [
     "ai",
@@ -22,6 +22,7 @@
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.6.2",
     "stripe": "^20.4.1"
   },
   "devDependencies": {

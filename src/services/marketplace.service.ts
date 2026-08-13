@@ -1,32 +1,8 @@
 // src/services/marketplace.service.ts
 import { promises as fs } from 'fs';
 import { Skill } from '../models/skill.model';
-import { Connection, PublicKey, Keypair, sendAndConfirmTransaction, Transaction } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
-import path from 'path';
 
-const DB_PATH = process.env.DB_PATH || './db.json';
-
-// Get Solana network configuration
-const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'devnet';
-
-// Get RPC URL based on network or use explicit SOLANA_RPC_URL
-const DEFAULT_RPC_URLS: Record<string, string> = {
-  mainnet: 'https://api.mainnet-beta.solana.com',
-  devnet: 'https://api.devnet.solana.com',
-  testnet: 'https://api.testnet.solana.com',
-  localhost: 'http://localhost:8899',
-};
-
-const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || DEFAULT_RPC_URLS[SOLANA_NETWORK] || 'https://api.devnet.solana.com';
-const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
-
-// Get FLUX mint address with fallback to known devnet address
-const FLUX_MINT_ADDRESS = process.env.FLUX_MINT_ADDRESS || '4CkR2jysfcsk3Mdn86KuuUkRSBBPwtN1fPaaffawLax9';
-const FLUX_MINT_PUBLIC_KEY = new PublicKey(FLUX_MINT_ADDRESS);
-const FLUX_DECIMALS = parseInt(process.env.FLUX_DECIMALS || '9', 10);
-const PROTOCOL_FEE_RATE = 0.05; // 5% fee on every transaction
-const TREASURY_PUBLIC_KEY = new PublicKey(process.env.TREASURY_WALLET || '5JfVfdEAAuwop51RLx6rUbooiEd1vTSxyw2DhkjPbA8G');
+const DB_PATH = process.env.DB_PATH;
 
 interface Database {
   skills: Skill[];
@@ -45,7 +21,7 @@ const SEED_DB: Database = {
       name: 'Text Summarizer',
       description: 'AI-powered text summarization. Send any text, get a concise summary back.',
       version: '1.0.0',
-      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 5, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -61,7 +37,7 @@ const SEED_DB: Database = {
       name: 'Code Reviewer',
       description: 'Automated code review agent. Submit code, get quality analysis, bug detection, and improvement suggestions.',
       version: '1.0.0',
-      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 10, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -77,7 +53,7 @@ const SEED_DB: Database = {
       name: 'Web Scraper',
       description: 'Extract structured data from any public webpage. Returns clean JSON.',
       version: '1.0.0',
-      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 3, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -93,7 +69,7 @@ const SEED_DB: Database = {
       name: 'Tool Use Guardian',
       description: 'FREE — Intelligent tool-call reliability wrapper. Monitors, retries, fixes, and learns from tool failures. Auto-recovers from truncated JSON, timeouts, rate limits, and mid-chain failures.',
       version: '1.0.0',
-      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 0, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -109,7 +85,7 @@ const SEED_DB: Database = {
       name: 'RecallMax',
       description: 'FREE — Ensure God-Tier Long-Context Memory. Injects extensive clean tokens, captures intent across conversations.',
       version: '1.0.0',
-      creatorAgentId: 'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 0, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -126,7 +102,7 @@ const SEED_DB: Database = {
       name: 'Real-time Verifier',
       description: 'Verifies real-time data across sources with trust scores.',
       version: '1.0.0',
-      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 15, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -142,7 +118,7 @@ const SEED_DB: Database = {
       name: 'Surgical Code Editor',
       description: 'Analyzes and optimizes code with advanced insights.',
       version: '1.0.0',
-      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 20, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -158,7 +134,7 @@ const SEED_DB: Database = {
       name: 'Prompt Condenser',
       description: 'Condenses prompts into more efficient forms for faster processing.',
       version: '1.0.0',
-      creatorAgentId: 'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB',
+      creatorAgentId: 'BiWrDayd4kJUthjqn1zVrLtytL9KUUECrntnhfTjgHSX',
       pricing: { type: 'per-call', amount: 8, currency: 'FLUX' },
       dependencies: [],
       interface: {
@@ -175,6 +151,10 @@ const SEED_DB: Database = {
 
 export async function readDb(): Promise<Database> {
   if (database) return database;
+  if (!DB_PATH) {
+    database = JSON.parse(JSON.stringify(SEED_DB));
+    return database as Database;
+  }
   try {
     const data = await fs.readFile(DB_PATH, 'utf-8');
     database = JSON.parse(data);
@@ -192,12 +172,15 @@ export async function readDb(): Promise<Database> {
 }
 
 export async function writeDb() {
-  if (database) {
+  if (database && DB_PATH) {
     await fs.writeFile(DB_PATH, JSON.stringify(database, null, 2));
   }
 }
 
 export async function publishSkill(skill: Skill): Promise<Skill> {
+    if (!DB_PATH) {
+        throw new Error('Direct publishing is review-gated until durable catalog storage is configured');
+    }
     const db = await readDb();
     if (db.skills.some(s => s.id === skill.id)) {
         throw new Error('Skill with this ID already exists');
@@ -217,110 +200,7 @@ export async function discoverSkills(query: string): Promise<Skill[]> {
     );
 }
 
-async function getKeypair(agentId: string): Promise<Keypair> {
-    const AGENT_KEY_MAP: Record<string, string> = {
-        'Hpa8TfRWqyUZCQikiTMgtHsft8favSVNbA82PYdCDwNB': 'agent-buyer',
-        'Cso4c8LAh84fHMvPDeNoVctLNKhsi6tbcRUUp2bcnKgt': 'agent-seller',
-    };
-    const agentName = AGENT_KEY_MAP[agentId];
-    if (!agentName) throw new Error(`No keypair found for agent ${agentId}`);
-    const keypairPath = path.join(process.env.HOME || '~', 'openclaw-craig', '.openclaw', 'solana', `${agentName}.json`);
-    try {
-        const secretKeyString = await fs.readFile(keypairPath, { encoding: 'utf8' });
-        const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
-        return Keypair.fromSecretKey(secretKey);
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to load keypair for agent ${agentId}: ${errorMessage}`);
-    }
-}
-
-export async function purchaseSkill(buyerAgentId: string, skillId: string, db?: Database): Promise<any> {
-    database = db || await readDb();
-    const skill = database.skills.find(s => s.id === skillId);
-    if (!skill) throw new Error('Skill not found');
-    if (skill.pricing.currency !== 'FLUX') throw new Error('Skill is not priced in FLUX');
-    if (skill.pricing.amount === 0) {
-        // Free skills — no payment needed
-        return {
-            message: 'Skill is free — no payment required',
-            packageUrl: skill.packageUrl,
-        };
-    }
-
-    const sellerAgentId = skill.creatorAgentId;
-    const priceInFlux = skill.pricing.amount;
-    const priceInSmallestUnit = priceInFlux * (10 ** FLUX_DECIMALS);
-
-    // Calculate 5% protocol fee
-    const feeAmount = Math.floor(priceInSmallestUnit * PROTOCOL_FEE_RATE);
-    const sellerAmount = priceInSmallestUnit - feeAmount;
-
-    const buyerKeypair = await getKeypair(buyerAgentId);
-    const sellerPublicKey = new PublicKey(sellerAgentId);
-
-    // Get the Associated Token Accounts
-    const buyerTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, buyerKeypair.publicKey);
-    const sellerTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, sellerPublicKey);
-    const treasuryTokenAccountAddress = await getAssociatedTokenAddress(FLUX_MINT_PUBLIC_KEY, TREASURY_PUBLIC_KEY);
-
-    // Build transaction: 95% to seller + 5% to treasury
-    const transaction = new Transaction();
-
-    // Transfer 95% to seller
-    transaction.add(
-        createTransferInstruction(
-            buyerTokenAccountAddress,
-            sellerTokenAccountAddress,
-            buyerKeypair.publicKey,
-            sellerAmount
-        )
-    );
-
-    // Transfer 5% protocol fee to treasury
-    if (feeAmount > 0) {
-        transaction.add(
-            createTransferInstruction(
-                buyerTokenAccountAddress,
-                treasuryTokenAccountAddress,
-                buyerKeypair.publicKey,
-                feeAmount
-            )
-        );
-    }
-
-    try {
-        const signature = await sendAndConfirmTransaction(connection, transaction, [buyerKeypair], { commitment: 'confirmed' });
-
-        const txnRecord = {
-            id: signature,
-            buyerAgentId,
-            sellerAgentId,
-            skillId,
-            amount: priceInFlux,
-            protocolFee: priceInFlux * PROTOCOL_FEE_RATE,
-            sellerReceived: priceInFlux * (1 - PROTOCOL_FEE_RATE),
-            timestamp: new Date().toISOString()
-        };
-
-        if (database) {
-            database.transactions.push(txnRecord);
-            await writeDb();
-        }
-
-        return {
-            message: 'Purchase successful',
-            transactionId: signature,
-            packageUrl: skill.packageUrl,
-            breakdown: {
-                total: priceInFlux,
-                sellerReceived: priceInFlux * (1 - PROTOCOL_FEE_RATE),
-                protocolFee: priceInFlux * PROTOCOL_FEE_RATE,
-                feeRate: `${PROTOCOL_FEE_RATE * 100}%`,
-            },
-        };
-    } catch (error) {
-        console.error("Transaction failed:", error);
-        throw new Error('FLUX token transfer failed.');
-    }
+export async function getSkillById(skillId: string): Promise<Skill | null> {
+    const db = await readDb();
+    return db.skills.find((skill) => skill.id === skillId) ?? null;
 }
